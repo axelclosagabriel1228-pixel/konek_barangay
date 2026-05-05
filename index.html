@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barangay ABCDE — Community Portal</title>
+
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  BARANGAY ABCDE — COMMUNITY WEB PORTAL                   ║
+  ║  Calabanga, Camarines Sur                                    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  FILE STRUCTURE                                              ║
+  ║                                                              ║
+  ║  index.html          ← You are here (entry point)           ║
+  ║                                                              ║
+  ║  css/                                                        ║
+  ║  ├── variables.css   ← Design tokens, colors, fonts         ║
+  ║  ├── base.css        ← Reset, layout, header, sidebar       ║
+  ║  ├── components.css  ← Buttons, badges, forms, modals       ║
+  ║  ├── announcements.css                                       ║
+  ║  ├── alerts.css                                              ║
+  ║  ├── lostfound.css                                           ║
+  ║  ├── inquiries.css                                           ║
+  ║  └── documents.css                                           ║
+  ║                                                              ║
+  ║  js/                                                         ║
+  ║  ├── core.js         ← Nav, clock, modal engine, helpers     ║
+  ║  ├── announcements.js                                        ║
+  ║  ├── alerts.js                                               ║
+  ║  ├── lostfound.js                                            ║
+  ║  ├── inquiries.js                                            ║
+  ║  └── documents.js                                            ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
+
+<!-- ── CSS: Load order matters (variables first, then base, then components, then features) ── -->
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/announcements.css">
+<link rel="stylesheet" href="css/alerts.css">
+<link rel="stylesheet" href="css/lostfound.css">
+<link rel="stylesheet" href="css/inquiries.css">
+<link rel="stylesheet" href="css/documents.css">
+</head>
+<body>
+
+<!-- ████████████████████████████████████████████
+     HEADER
+     ████████████████████████████████████████████ -->
+<header class="hdr">
+  <div class="hdr-logo">BRG</div>
+  <div class="hdr-title">
+    <h1>Brgy. Alangilan</h1>
+    <p>Batangas City</p>
+  </div>
+  <span class="hdr-badge">🇵🇭 Official Portal</span>
+  <div class="hdr-time">
+    <div id="h-time"></div>
+    <div id="h-date"></div>
+  </div>
+</header>
+
+<!-- ████████████████████████████████████████████
+     ALERT TICKER
+     ████████████████████████████████████████████ -->
+<div class="ticker" id="ticker" onclick="switchTab('alerts')">
+  <div class="ticker-dot"></div>
+  <span>⚠ Active Alert: Tropical Storm Egay may bring heavy rains in CALABARZON Region — Stay safe and be prepared</span>
+  <button class="ticker-x" onclick="closeTicker(event)" title="Dismiss">✕</button>
+</div>
+
+<!-- ████████████████████████████████████████████
+     APP BODY
+     ████████████████████████████████████████████ -->
+<div class="app-body" id="app-body">
+
+  <!-- ════════════════════════════════════════
+       SIDEBAR NAVIGATION
+       ════════════════════════════════════════ -->
+  <nav class="sidebar" id="sidebar">
+    <span class="nav-section-label">Menu</span>
+
+    <button class="nav-item active" data-tab="announcements" onclick="switchTab('announcements')">
+      <span class="nav-ico">📢</span> Announcements
+    </button>
+    <button class="nav-item" data-tab="alerts" onclick="switchTab('alerts')">
+      <span class="nav-ico">🚨</span> Alerts
+      <span class="nav-badge" id="alert-count">2</span>
+    </button>
+    <button class="nav-item" data-tab="lostfound" onclick="switchTab('lostfound')">
+      <span class="nav-ico">🔍</span> Lost &amp; Found
+    </button>
+    <button class="nav-item" data-tab="inquiries" onclick="switchTab('inquiries')">
+      <span class="nav-ico">💬</span> Inquiries
+    </button>
+    <button class="nav-item" data-tab="documents" onclick="switchTab('documents')">
+      <span class="nav-ico">📄</span> Request Document
+    </button>
+
+    <hr class="sidebar-divider">
+    <span class="nav-section-label">Barangay Info</span>
+    <div class="sidebar-info">
+      <strong>Office Hours</strong><br>
+      Mon–Fri: 8:00 AM – 5:00 PM<br>
+      Saturday: 8:00 AM – 12:00 PM<br>
+      Sunday &amp; Holidays: Closed<br><br>
+      <strong>Contact</strong><br>
+      📞 (054) 123-4567<br>
+      ✉ brgy.sanjuan@calabanga.ph
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════════
+       MAIN CONTENT
+       ════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- ══════════════════════════════════════
+         TAB 1 — ANNOUNCEMENTS
+         ══════════════════════════════════════ -->
+    <section class="tab-sec active" id="tab-announcements">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Announcements</div>
+          <div class="sec-sub">Latest news and updates from your barangay</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-ann')">+ Post</button>
+      </div>
+
+      <!-- Filter -->
+      <div class="filter-bar" id="ann-filter">
+        <button class="fbtn active" onclick="filterAnn(this,'all')">All</button>
+        <button class="fbtn" onclick="filterAnn(this,'event')">Events</button>
+        <button class="fbtn" onclick="filterAnn(this,'health')">Health</button>
+        <button class="fbtn" onclick="filterAnn(this,'infra')">Infrastructure</button>
+        <button class="fbtn" onclick="filterAnn(this,'gov')">Government</button>
+      </div>
+
+      <!-- Cards -->
+      <div id="ann-list">
+        <div class="ann-card" data-cat="event">
+          <div class="ann-hdr">
+            <span class="badge badge-blue">🎉 Event</span>
+            <span class="ann-date">May 4, 2026</span>
+          </div>
+          <div class="ann-title">Barangay Fiesta 2026 — Save the Date!</div>
+          <div class="ann-body">Join us for our annual Barangay Fiesta celebration on <strong>May 15, 2026</strong>. The event will feature cultural performances, games for all ages, food stalls, and a beauty pageant. All residents are encouraged to participate and celebrate with the community.</div>
+          <div class="ann-foot">
+            <span class="t-muted t-sm">📌 Brgy. Plaza Area</span>
+            <span class="t-muted t-sm" style="margin-left:auto">Brgy. Secretary</span>
+          </div>
+        </div>
+
+        <div class="ann-card" data-cat="health">
+          <div class="ann-hdr">
+            <span class="badge badge-red">❤ Health</span>
+            <span class="ann-date">May 3, 2026</span>
+          </div>
+          <div class="ann-title">Free Medical &amp; Dental Mission — May 10</div>
+          <div class="ann-body">A free medical and dental mission will be held on <strong>May 10, 2026</strong> at the Barangay Hall from 8:00 AM to 4:00 PM. Services include free consultation, blood pressure monitoring, dental extraction, and distribution of free medicines. Bring your valid ID and health card.</div>
+          <div class="ann-foot">
+            <span class="t-muted t-sm">📌 Barangay Hall</span>
+            <span class="t-muted t-sm" style="margin-left:auto">Brgy. Health Worker</span>
+          </div>
+        </div>
+
+        <div class="ann-card" data-cat="infra">
+          <div class="ann-hdr">
+            <span class="badge badge-yellow">🔧 Infrastructure</span>
+            <span class="ann-date">May 3, 2026</span>
+          </div>
+          <div class="ann-title">Garbage Collection Schedule Updated</div>
+          <div class="ann-body">Effective <strong>May 6, 2026</strong>, garbage collection will be every <strong>Tuesday and Friday</strong>. Place properly segregated bags outside your home by 6:00 AM on collection days. Separate biodegradable, non-biodegradable, and recyclables in distinct bags.</div>
+          <div class="ann-foot">
+            <span class="t-muted t-sm">📌 All Sitios</span>
+            <span class="t-muted t-sm" style="margin-left:auto">Brgy. Captain</span>
+          </div>
+        </div>
+
+        <div class="ann-card" data-cat="gov">
+          <div class="ann-hdr">
+            <span class="badge badge-blue">🏛 Government</span>
+            <span class="ann-date">May 1, 2026</span>
+          </div>
+          <div class="ann-title">Quarterly Barangay Assembly — May 20</div>
+          <div class="ann-body">All residents are invited to the <strong>Quarterly Barangay Assembly</strong> on May 20, 2026 at 2:00 PM at the Barangay Hall. Agenda includes: presentation of 2026 budget utilization, updates on ongoing projects, and open forum. Your attendance and participation matters.</div>
+          <div class="ann-foot">
+            <span class="t-muted t-sm">📌 Barangay Hall</span>
+            <span class="t-muted t-sm" style="margin-left:auto">Brgy. Captain</span>
+          </div>
+        </div>
+
+        <div class="ann-card" data-cat="health">
+          <div class="ann-hdr">
+            <span class="badge badge-red">❤ Health</span>
+            <span class="ann-date">Apr 28, 2026</span>
+          </div>
+          <div class="ann-title">Dengue Prevention — Community Clean-up Brigada</div>
+          <div class="ann-body">A community clean-up drive to prevent dengue will be conducted on <strong>May 9 (Saturday)</strong> starting 7:00 AM. All households are urged to eliminate stagnant water. Purok leaders will inspect each household. Free anti-dengue kits will be provided to participating families.</div>
+          <div class="ann-foot">
+            <span class="t-muted t-sm">📌 All Puroks</span>
+            <span class="t-muted t-sm" style="margin-left:auto">Brgy. Health Worker</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         TAB 2 — ALERTS
+         ══════════════════════════════════════ -->
+    <section class="tab-sec" id="tab-alerts">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Alerts &amp; Advisories</div>
+          <div class="sec-sub">Emergency notices and important community alerts</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="openModal('modal-alert')">+ Post Alert</button>
+      </div>
+
+      <div id="alerts-list">
+        <div class="alert-card ac-em" id="alrt-1">
+          <div class="alert-ico aico-em">🚨</div>
+          <div style="flex:1">
+            <div class="alert-title at-em">WEATHER ALERT — Tropical Storm Egay</div>
+            <div class="alert-body">PAGASA has placed Camarines Sur under <strong>Tropical Cyclone Wind Signal #1</strong>. Residents in low-lying areas and near rivers are advised to evacuate to the Barangay Emergency Shelter. Secure your properties and prepare emergency kits (food, water, medicines, documents).</div>
+            <div class="alert-meta">
+              <span class="badge badge-red">Emergency</span>
+              · May 4, 2026, 10:30 AM · Source: PAGASA / Brgy. DRRM
+            </div>
+          </div>
+          <button class="alert-dismiss" onclick="dismissAlert('alrt-1')">✕</button>
+        </div>
+
+        <div class="alert-card ac-wa" id="alrt-2">
+          <div class="alert-ico aico-wa">⚠️</div>
+          <div style="flex:1">
+            <div class="alert-title at-wa">Flash Flood Advisory — Low-Lying Areas</div>
+            <div class="alert-body">Due to continuous rainfall, <strong>residents near Sitio Bunga creek and Sitio Burol</strong> are warned of possible flash floods. Do not cross flooded pathways. Move valuables to higher ground. Be ready to evacuate on short notice.</div>
+            <div class="alert-meta">
+              <span class="badge badge-yellow">Warning</span>
+              · May 4, 2026, 8:00 AM · Source: Brgy. DRRM Team
+            </div>
+          </div>
+          <button class="alert-dismiss" onclick="dismissAlert('alrt-2')">✕</button>
+        </div>
+
+        <div class="alert-card ac-in" id="alrt-3">
+          <div class="alert-ico aico-in">🔧</div>
+          <div style="flex:1">
+            <div class="alert-title at-in">Road Repair — Temporary Closure (May 6–8)</div>
+            <div class="alert-body">The main road along <strong>Sitio Lamon (near the elementary school)</strong> will undergo repairs from May 6–8, 2026. Traffic will be redirected via the alternate road near the covered court. Please plan your travel accordingly.</div>
+            <div class="alert-meta">
+              <span class="badge badge-blue">Advisory</span>
+              · May 3, 2026 · Source: Brgy. Infrastructure
+            </div>
+          </div>
+          <button class="alert-dismiss" onclick="dismissAlert('alrt-3')">✕</button>
+        </div>
+
+        <div class="alert-card ac-in" id="alrt-4">
+          <div class="alert-ico aico-in">💧</div>
+          <div style="flex:1">
+            <div class="alert-title at-in">Water Supply Interruption — May 5</div>
+            <div class="alert-body">LCWD will conduct maintenance on the main pipeline on <strong>May 5, 2026 (Tuesday)</strong> from 8:00 AM to 5:00 PM. Water supply will be temporarily cut in all sitios. Please store enough water for your household needs in advance.</div>
+            <div class="alert-meta">
+              <span class="badge badge-blue">Advisory</span>
+              · May 2, 2026 · Source: LCWD / Brgy. Admin
+            </div>
+          </div>
+          <button class="alert-dismiss" onclick="dismissAlert('alrt-4')">✕</button>
+        </div>
+      </div>
+
+      <div id="alerts-empty" class="empty" style="display:none">
+        <div class="e-ico">✅</div>
+        <strong>No Active Alerts</strong>
+        <p>All clear! No alerts or advisories at this time.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         TAB 3 — LOST & FOUND
+         ══════════════════════════════════════ -->
+    <section class="tab-sec" id="tab-lostfound">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Lost &amp; Found</div>
+          <div class="sec-sub">Report or browse lost and found items in the community</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-lf')">+ Report Item</button>
+      </div>
+
+      <div class="filter-bar" id="lf-filter">
+        <button class="fbtn active" onclick="filterLF(this,'all')">All Items</button>
+        <button class="fbtn" onclick="filterLF(this,'lost')">Lost</button>
+        <button class="fbtn" onclick="filterLF(this,'found')">Found</button>
+      </div>
+
+      <div class="lf-grid" id="lf-grid">
+        <div class="lf-card" data-lft="lost">
+          <div class="lf-img lf-img-lost">👜</div>
+          <div class="lf-body">
+            <div class="lf-type lf-lost">LOST</div>
+            <div class="lf-name">Black Leather Wallet</div>
+            <div class="lf-detail">📍 Near Barangay Hall</div>
+            <div class="lf-detail">📅 May 1, 2026</div>
+            <div class="lf-detail">📞 0917-123-4567</div>
+          </div>
+        </div>
+        <div class="lf-card" data-lft="found">
+          <div class="lf-img lf-img-found">📱</div>
+          <div class="lf-body">
+            <div class="lf-type lf-found">FOUND</div>
+            <div class="lf-name">Samsung Galaxy Phone</div>
+            <div class="lf-detail">📍 Sitio Bunga</div>
+            <div class="lf-detail">📅 Apr 30, 2026</div>
+            <div class="lf-detail">📞 0928-123-4567</div>
+          </div>
+        </div>
+        <div class="lf-card" data-lft="lost">
+          <div class="lf-img lf-img-lost">🐶</div>
+          <div class="lf-body">
+            <div class="lf-type lf-lost">LOST</div>
+            <div class="lf-name">Brown Puppy (Aspin)</div>
+            <div class="lf-detail">📍 Near Elem. School</div>
+            <div class="lf-detail">📅 Apr 28, 2026</div>
+            <div class="lf-detail">📞 0935-123-4567</div>
+          </div>
+        </div>
+        <div class="lf-card" data-lft="found">
+          <div class="lf-img lf-img-found">🔑</div>
+          <div class="lf-body">
+            <div class="lf-type lf-found">FOUND</div>
+            <div class="lf-name">Keys with Blue Keychain</div>
+            <div class="lf-detail">📍 Waiting Shed</div>
+            <div class="lf-detail">📅 Apr 27, 2026</div>
+            <div class="lf-detail">📞 0946-123-4567</div>
+          </div>
+        </div>
+        <div class="lf-card" data-lft="lost">
+          <div class="lf-img lf-img-lost">🚲</div>
+          <div class="lf-body">
+            <div class="lf-type lf-lost">LOST</div>
+            <div class="lf-name">Child's Red Bicycle</div>
+            <div class="lf-detail">📍 Plaza Area</div>
+            <div class="lf-detail">📅 Apr 25, 2026</div>
+            <div class="lf-detail">📞 0916-123-4567</div>
+          </div>
+        </div>
+        <div class="lf-card" data-lft="found">
+          <div class="lf-img lf-img-found">👛</div>
+          <div class="lf-body">
+            <div class="lf-type lf-found">FOUND</div>
+            <div class="lf-name">Floral Coin Purse</div>
+            <div class="lf-detail">📍 Market Area</div>
+            <div class="lf-detail">📅 Apr 24, 2026</div>
+            <div class="lf-detail">📞 0922-123-4567</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         TAB 4 — INQUIRIES
+         ══════════════════════════════════════ -->
+    <section class="tab-sec" id="tab-inquiries">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Inquiries</div>
+          <div class="sec-sub">Ask questions or send concerns to the barangay office</div>
+        </div>
+      </div>
+
+      <div class="mb12"><strong style="font-size:15px;color:var(--royal-blue-dark)">Frequently Asked Questions</strong></div>
+
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-q">How do I get a Barangay Clearance? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">Visit the Barangay Hall during office hours with the following:<br><br>✔ 1 valid government-issued ID<br>✔ Accomplished application form (available at the hall)<br>✔ PHP 50.00 processing fee<br><br>Processing is usually same-day. Call (054) 123-4567 for more info.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-q">What are the Barangay Hall office hours? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">📅 Monday to Friday: 8:00 AM – 5:00 PM<br>📅 Saturday: 8:00 AM – 12:00 PM<br>📅 Sunday and Holidays: Closed<br><br>For emergencies outside office hours, contact the Barangay Tanod.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-q">What are the requirements for Certificate of Indigency? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">Requirements:<br><br>✔ Letter of request stating the purpose<br>✔ 1 valid ID or Barangay ID<br>✔ Must be a registered resident of the barangay<br>✔ Verification by the Barangay Captain<br><br>This certificate is issued <strong>FREE</strong> for qualified indigent residents.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-q">How do I report a community concern or complaint? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">You can report through:<br><br>📝 Submit an inquiry using the form below<br>📞 Call (054) 123-4567 during office hours<br>📍 Visit the Barangay Hall in person<br>💬 Talk to your Purok Leader for immediate concerns<br><br>All complaints are handled with confidentiality.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFAQ(this)">
+        <button class="faq-q">How long does document processing take? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">📄 Barangay Clearance: Same day<br>📄 Certificate of Indigency: 1–2 working days<br>📄 Certificate of Residency: Same day<br>📄 Business Permit Clearance: 3–5 working days<br>📄 Good Moral Certificate: 1–2 working days<br>📄 Barangay ID: 3–7 working days</div>
+      </div>
+
+      <!-- Inquiry Form -->
+      <div class="form-sec" id="inq-form-sec">
+        <div class="form-title">Submit an Inquiry</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="inq-name" placeholder="Juan dela Cruz">
+          </div>
+          <div class="form-group">
+            <label>Contact Number *</label>
+            <input type="tel" id="inq-phone" placeholder="09XX-XXX-XXXX">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="inq-email" placeholder="juandelacruz@email.com">
+        </div>
+        <div class="form-group">
+          <label>Type of Concern *</label>
+          <select id="inq-type">
+            <option value="">Select concern type…</option>
+            <option>Document Request Inquiry</option>
+            <option>Community Issue / Complaint</option>
+            <option>Health / Sanitation Concern</option>
+            <option>Infrastructure / Maintenance</option>
+            <option>Business / Permit Inquiry</option>
+            <option>Other Concern</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message / Concern *</label>
+          <textarea id="inq-msg" placeholder="Describe your inquiry or concern in detail…"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="submitInquiry()">Submit Inquiry</button>
+      </div>
+
+      <!-- Success -->
+      <div id="inq-success" class="form-sec" style="display:none">
+        <div class="success-box">
+          <div class="success-ico">✅</div>
+          <h3>Inquiry Submitted!</h3>
+          <p>Your inquiry has been received. A barangay official will respond within 1–3 business days.</p>
+          <div class="ref-pill">Ref #: <span id="inq-ref"></span></div>
+          <br>
+          <button class="btn btn-outline mt16" onclick="resetInquiry()">Submit Another Inquiry</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         TAB 5 — REQUEST DOCUMENT
+         ══════════════════════════════════════ -->
+    <section class="tab-sec" id="tab-documents">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Request a Document</div>
+          <div class="sec-sub">Online requests are processed within 1–3 business days</div>
+        </div>
+      </div>
+
+      <div class="mb8"><strong style="font-size:14px;color:var(--text-mid)">Select Document Type</strong></div>
+
+      <div class="doc-grid">
+        <div class="doc-card" onclick="selectDoc(this,'clearance')">
+          <div class="doc-ico">📋</div>
+          <div class="doc-name">Barangay Clearance</div>
+          <div class="doc-fee">PHP 50.00</div>
+        </div>
+        <div class="doc-card" onclick="selectDoc(this,'indigency')">
+          <div class="doc-ico">🤝</div>
+          <div class="doc-name">Certificate of Indigency</div>
+          <div class="doc-fee">Free</div>
+        </div>
+        <div class="doc-card" onclick="selectDoc(this,'residency')">
+          <div class="doc-ico">🏠</div>
+          <div class="doc-name">Certificate of Residency</div>
+          <div class="doc-fee">PHP 50.00</div>
+        </div>
+        <div class="doc-card" onclick="selectDoc(this,'business')">
+          <div class="doc-ico">🏪</div>
+          <div class="doc-name">Business Permit Clearance</div>
+          <div class="doc-fee">PHP 100.00</div>
+        </div>
+        <div class="doc-card" onclick="selectDoc(this,'moral')">
+          <div class="doc-ico">⭐</div>
+          <div class="doc-name">Good Moral Certificate</div>
+          <div class="doc-fee">PHP 50.00</div>
+        </div>
+        <div class="doc-card" onclick="selectDoc(this,'id')">
+          <div class="doc-ico">🪪</div>
+          <div class="doc-name">Barangay ID</div>
+          <div class="doc-fee">Free</div>
+        </div>
+      </div>
+
+      <!-- Placeholder -->
+      <div id="doc-placeholder" class="empty">
+        <div class="e-ico">👆</div>
+        <strong>Choose a document above</strong>
+        <p>We'll show requirements and the request form.</p>
+      </div>
+
+      <!-- Requirements -->
+      <div id="doc-reqs-box" class="doc-reqs-box" style="display:none">
+        <h4 id="doc-reqs-title">Requirements</h4>
+        <span class="fee-pill" id="doc-fee-pill">💰 Fee: —</span>
+        <ul id="doc-reqs-list"></ul>
+      </div>
+
+      <!-- Form -->
+      <div class="form-sec" id="doc-form-sec" style="display:none">
+        <div class="form-title" id="doc-form-title">Request Form</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="doc-name" placeholder="Juan dela Cruz">
+          </div>
+          <div class="form-group">
+            <label>Date of Birth *</label>
+            <input type="date" id="doc-dob">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Complete Address *</label>
+          <input type="text" id="doc-addr" placeholder="House No., Sitio, Brgy. San Juan, Calabanga">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Contact Number *</label>
+            <input type="tel" id="doc-phone" placeholder="09XX-XXX-XXXX">
+          </div>
+          <div class="form-group">
+            <label>Preferred Pickup Date *</label>
+            <input type="date" id="doc-pickup">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Purpose *</label>
+          <input type="text" id="doc-purpose" placeholder="e.g. Employment, School, Loan application…">
+        </div>
+        <div class="form-group">
+          <label>Additional Notes</label>
+          <textarea id="doc-notes" placeholder="Any special instructions or notes…" style="min-height:70px"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="submitDoc()">Submit Request</button>
+          <button class="btn btn-outline" onclick="resetDoc()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div id="doc-success" class="form-sec" style="display:none">
+        <div class="success-box">
+          <div class="success-ico">📬</div>
+          <h3>Request Submitted!</h3>
+          <p>Your document request has been received. Please visit the Barangay Hall on your preferred pickup date.</p>
+
+          <div class="status-track" style="margin:22px auto">
+            <div class="status-step s-done">
+              <div class="status-dot">✓</div>
+              <div class="status-lbl">Submitted</div>
+            </div>
+            <div class="status-step s-cur">
+              <div class="status-dot">⏳</div>
+              <div class="status-lbl">Processing</div>
+            </div>
+            <div class="status-step">
+              <div class="status-dot">3</div>
+              <div class="status-lbl">For Release</div>
+            </div>
+            <div class="status-step">
+              <div class="status-dot">4</div>
+              <div class="status-lbl">Completed</div>
+            </div>
+          </div>
+
+          <div class="ref-pill">Ref #: <span id="doc-ref"></span></div>
+          <p class="t-muted t-sm mt8">Document: <span id="doc-confirm"></span></p>
+          <button class="btn btn-outline mt16" onclick="resetDoc()">Request Another Document</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- end app-body -->
+
+<!-- ████████████████████████████████████████████
+     BOTTOM NAVIGATION (Mobile)
+     ████████████████████████████████████████████ -->
+<nav class="bnav">
+  <div class="bnav-inner">
+    <button class="bnav-item active" data-tab="announcements" onclick="switchTab('announcements')">
+      <span class="bnav-ico">📢</span><span class="bnav-lbl">News</span>
+    </button>
+    <button class="bnav-item" data-tab="alerts" onclick="switchTab('alerts')">
+      <span class="bnav-ico">🚨</span><span class="bnav-lbl">Alerts</span>
+      <span class="bnav-dot"></span>
+    </button>
+    <button class="bnav-item" data-tab="lostfound" onclick="switchTab('lostfound')">
+      <span class="bnav-ico">🔍</span><span class="bnav-lbl">Lost/Found</span>
+    </button>
+    <button class="bnav-item" data-tab="inquiries" onclick="switchTab('inquiries')">
+      <span class="bnav-ico">💬</span><span class="bnav-lbl">Inquiries</span>
+    </button>
+    <button class="bnav-item" data-tab="documents" onclick="switchTab('documents')">
+      <span class="bnav-ico">📄</span><span class="bnav-lbl">Docs</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ████████████████████████████████████████████
+     MODALS
+     ████████████████████████████████████████████ -->
+
+<!-- Modal: Post Announcement -->
+<div class="modal-ov" id="modal-ann">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">📢 Post Announcement</div>
+      <button class="modal-x" onclick="closeModal('modal-ann')">✕</button>
+    </div>
+    <div class="form-group"><label>Title *</label><input type="text" id="m-ann-title" placeholder="Announcement title…"></div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="m-ann-cat">
+        <option value="event">🎉 Event</option>
+        <option value="health">❤ Health</option>
+        <option value="infra">🔧 Infrastructure</option>
+        <option value="gov">🏛 Government</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Content *</label><textarea id="m-ann-body" placeholder="Write your announcement…" style="min-height:120px"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Location</label><input type="text" id="m-ann-loc" placeholder="e.g. Barangay Hall"></div>
+      <div class="form-group"><label>Posted by</label><input type="text" id="m-ann-by" placeholder="e.g. Brgy. Captain"></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="postAnn()">Post Announcement</button>
+  </div>
+</div>
+
+<!-- Modal: Post Alert -->
+<div class="modal-ov" id="modal-alert">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">🚨 Post Alert / Advisory</div>
+      <button class="modal-x" onclick="closeModal('modal-alert')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Alert Level *</label>
+      <select id="m-alrt-lvl">
+        <option value="em">🔴 Emergency</option>
+        <option value="wa">🟡 Warning</option>
+        <option value="in">🔵 Advisory</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Title *</label><input type="text" id="m-alrt-title" placeholder="Alert title…"></div>
+    <div class="form-group"><label>Message *</label><textarea id="m-alrt-body" placeholder="Describe the alert or advisory…" style="min-height:100px"></textarea></div>
+    <div class="form-group"><label>Source</label><input type="text" id="m-alrt-src" placeholder="e.g. PAGASA / Brgy. DRRM"></div>
+    <button class="btn btn-danger btn-block" onclick="postAlert()">Post Alert</button>
+  </div>
+</div>
+
+<!-- Modal: Report Lost & Found -->
+<div class="modal-ov" id="modal-lf">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">🔍 Report Lost / Found Item</div>
+      <button class="modal-x" onclick="closeModal('modal-lf')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Type *</label>
+      <select id="m-lf-type">
+        <option value="lost">Lost Item</option>
+        <option value="found">Found Item</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Item Name *</label><input type="text" id="m-lf-name" placeholder="e.g. Black Wallet, Samsung Phone…"></div>
+    <div class="form-group"><label>Description</label><textarea id="m-lf-desc" placeholder="Color, brand, distinguishing marks…" style="min-height:70px"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Location</label><input type="text" id="m-lf-loc" placeholder="Where lost/found"></div>
+      <div class="form-group"><label>Date *</label><input type="date" id="m-lf-date"></div>
+    </div>
+    <div class="form-group"><label>Contact Number *</label><input type="tel" id="m-lf-phone" placeholder="09XX-XXX-XXXX"></div>
+    <button class="btn btn-primary btn-block" onclick="postLF()">Post Item</button>
+  </div>
+</div>
+
+<!-- 
+     JAVASCRIPT — Load order: core first, then features
+-->
+<script src="js/core.js"></script>          <!-- Navigation, clock, modal engine, helpers -->
+<script src="js/announcements.js"></script>  <!-- Announcement filter & post -->
+<script src="js/alerts.js"></script>         <!-- Alert dismiss & post -->
+<script src="js/lostfound.js"></script>      <!-- Lost & Found filter & post -->
+<script src="js/inquiries.js"></script>      <!-- FAQ accordion & inquiry form -->
+<script src="js/documents.js"></script>      <!-- Document selection & request -->
+
+</body>
+</html>
